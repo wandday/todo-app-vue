@@ -4,24 +4,14 @@
           <h1 class="pageTitle">Todo List</h1>
       </div>
 
-        <!--------------------- Input Section -------------------------------------->
+      <div class="createTodoSection" >
+          <button @click="addNewTodo" class="newTodoButton"> Add New </button>
+      </div>
 
-    <div class="formSection">
-        <input v-model="task" type="text" placeholder="Input your task" class="inputField" required >
-        <input v-model="completeBy" type="date" placeholder="Deadline"  class="dateField" required>
-        <select v-model="order" class="priorityControl" required >
-            <option selected disabled="disabled" value="">Priority</option>
-            <option>High</option>
-            <option>Medium</option>
-            <option>Low</option>
-        </select>
-        <button @click="saveItem" class="saveButton"> SUBMIT </button>
-    </div>
+    <!---------------------------- Table Section ----------------------------------------->
 
-
-            <!---------------------------- Table Section ----------------------------------------->
-
-    <div class="tableSection">
+      <div class="content">
+          <div class="tableSection">
 
         <table class="table">
             <thead>
@@ -38,15 +28,17 @@
                 <tr v-for="(item, index ) in todoItems" :key="index" >
                     <td :class="{'completed': item.status === 'Completed'}">{{toTitleCase(item.todoItem)}}</td>
 
-                    <td @click="updateStatus(index)" class="statusSelector" :class="{'statusTodo': item.status === 'Todo', 
+                    <td  @click="updateStatus(index)" class="statusSelector" :class="{'statusTodo': item.status === 'Todo', 
                     'statusOnGoing': item.status === 'On-going',
-                    'statusCompleted': item.status === 'Completed' }" >{{item.status}} <i v-if="item.todoItem" class="ri-pencil-fill"></i></td>
+                    'statusCompleted': item.status === 'Completed' }" v-if="item.todoItem" >{{item.status}} <i v-if="item.todoItem" class="ri-pencil-fill"></i></td>
 
-                    <td >{{item.deadline}}</td>
+                    <td v-if="item.deadline" >{{item.deadline}}</td>
 
-                    <td>{{item.priority}}</td>
+                    <td v-if="item.priority">{{item.priority}}</td>
 
-                    <td v-if="item.todoItem" @click="editItem(index)" ><i  class=" ri-pencil-fill penIcon"></i></td>
+                    <div>
+                        <td v-if="item.todoItem" @click="editItem(index)"><i  class="ri-pencil-fill penIcon"></i></td>
+                    </div>
 
                     <td v-if="item.todoItem" @click="deleteItem(index)"><i class="ri-delete-bin-6-line"></i></td>
                     
@@ -58,8 +50,28 @@
 
     </div>
 
+        <!--------------------- Input Section -------------------------------------->
+
+    <div class="formSection" v-if="showForm">
+        <form>
+            <i @click="closeForm" class="ri-close-fill ri-1x"></i>
+        <div class="form">
+            <input v-model="task" type="text" placeholder="Input your task" class="inputField" required >
+            <input v-model="completeBy" type="date" placeholder="Deadline"  class="dateField" required>
+            <select v-model="order" class="priorityControl" required >
+                <option selected disabled="disabled" value="">Priority</option>
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+            </select>
+            <button @click="saveItem" class="saveButton"> SUBMIT </button>
+        </div>
+        </form>
+    </div>    
+
     <div></div>
   </div>
+      </div>
 </template>
 
 <script>
@@ -69,6 +81,8 @@ export default {
             task: '',
             completeBy: '',
             order: '',
+
+            showForm: false,
 
             updatedTask: null,
             updatedcompleteBy: null,
@@ -94,7 +108,9 @@ export default {
 
     methods:{
         saveItem(){
-            if (this.task.length === 0) return;
+            if (this.task.length === 0)
+            if (this.completeBy.length === 0)
+            if (this.order.length === 0)return;
 
             if (this.updatedTask === null);
             if (this.updatedcompleteBy === null);
@@ -122,6 +138,18 @@ export default {
             this.completeBy = '';
             this.order = '';
 
+
+
+
+
+            if (this.showForm)
+            this.showForm = !this.showForm
+
+
+
+
+            
+
             
         },
 
@@ -130,6 +158,7 @@ export default {
         },
 
         editItem(index){
+            this.showForm = !this.showForm
             this.task = this.todoItems[index].todoItem;
             this.completeBy = this.todoItems[index].deadline;
             this.order = this.todoItems[index].priority;
@@ -137,6 +166,9 @@ export default {
             this.updatedTask = index;
             this.updatedcompleteBy = index;
             this.updatedOrder = index;
+
+            
+            
         },
 
         updateStatus(index){
@@ -149,6 +181,14 @@ export default {
 
         toTitleCase(str){
             return str.charAt(0).toUpperCase() + str.slice(1);
+        },
+
+        addNewTodo(){
+            this.showForm = true
+        },
+
+        closeForm(){
+            this.showForm = !this.showForm
         }
 
     }
@@ -157,43 +197,62 @@ export default {
 
 <style>
 
-.formSection{
+.content{
     display: flex;
-    justify-content:space-between;
+    flex-direction: column;
     align-items: center;
-    width: 700px;
-    margin: auto;
-    background: #E6E6FA;
-    padding: 12px;
-    border-radius:20pt;
+    align-content: center;
 }
 
-.inputField{
-    display: flex;
-    width: 35%;
-    height: 42px;
-    /* border-radius:40pt 0pt 0pt 40pt; */
+.formSection{
+    /* display: flex; */
+    width:390px;
+    height: 350px;
+    background: #E6E6FA;
+    /* padding: 12px; */
     border-radius:10pt;
+    position: fixed;
+    align-items: center;
+    padding: 16px;
+    margin: auto;
+    /* display: none; */
+}
+
+.form{
+    margin-top: 30px;
+}
+
+
+
+.inputField{
+    width: 300px;
+    height: 42px;
     border-color: gray;
     box-shadow: inset 1px 2px 8px rgba(0, 0, 0, 0.07);
-    padding: 0px 16px;
+    padding: 0px 12px;
     font-size: 12pt;
+    margin-bottom: 20px;
 }
 
 .dateField{
    height: 46px; 
    background:  white;
    /* border: none; */
-   border-radius:10pt;
+   /* border-radius:10pt; */
    color: black;
    padding: 0px 12px;
+   width: 300px;
+   margin-bottom: 20px;
 }
 
 .priorityControl{
      height: 46px;
      padding: 0px 12px;
-     border-radius:10pt;
+     /* border-radius:10pt; */
+     width: 330px;
+     margin-bottom: 20px;
 }
+
 
 .saveButton{
     padding: 0px 12px;
@@ -206,7 +265,32 @@ export default {
     font-weight: bold;
     font-size: 12pt;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+    width: 330px;
+    margin-bottom: 20px;
+    cursor: pointer;
     
+}
+
+.newTodoButton{
+    padding: 0px 12px;
+    width: 120px;
+    height: 46px;
+    border-radius:10pt;
+    border:none;
+    background: blue;
+    color: white;
+    font-weight: bold;
+    font-size: 12pt;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+.createTodoSection{
+    display: flex;
+    justify-content: end;
+    margin-right: 320px;
+
 }
 
 .pageTitle{
@@ -226,7 +310,9 @@ export default {
     min-width: 400px;
     width: 700px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    position: relative;
 }
+
 
 .table thead tr {
     background-color: blue;
@@ -276,9 +362,19 @@ table th,
 
 .penIcon{
     color: blue;
+    cursor: pointer;
 }
 
 .ri-delete-bin-6-line{
     color: red;
+    cursor: pointer;
+}
+
+.ri-close-fill{
+    margin-right: -310px;
+    background: red;
+    color: white;
+    margin-top: 18px;
+    cursor: pointer;
 }
 </style>
